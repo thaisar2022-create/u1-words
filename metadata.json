@@ -1,0 +1,6 @@
+{
+  "name": "Royal Marigold - Thai-Burmese Vocabulary System",
+  "description": "Cultural, focused Thai language learning system for Myanmar speakers with tri-script flashcards, audio pronunciation, and tone mastery.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
