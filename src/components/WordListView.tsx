@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { VocabularyWord, ThaiTone } from '../types/vocabulary';
+import { VocabularyItem, ToneType, CategoryType } from '../types/vocabulary';
 import { WordCard } from './WordCard';
 import { audioService } from '../utils/audio';
 import { TONE_DETAILS, CATEGORIES } from '../data/vocabularyData';
@@ -10,21 +10,20 @@ import {
   CheckCircle2, 
   Volume2, 
   Sparkles,
-  SlidersHorizontal,
   Search,
   X
 } from 'lucide-react';
 
 interface WordListViewProps {
-  words: VocabularyWord[];
-  starredIds: string[];
-  masteredIds: string[];
-  onToggleStar: (id: string) => void;
-  onToggleMaster: (id: string) => void;
-  onSelectWord: (word: VocabularyWord) => void;
+  words: VocabularyItem[];
+  starredIds: number[];
+  masteredIds: number[];
+  onToggleStar: (id: number) => void;
+  onToggleMaster: (id: number) => void;
+  onSelectWord: (word: VocabularyItem) => void;
   audioSpeed: number;
-  selectedCategory?: string;
-  onSelectCategory?: (category: string) => void;
+  selectedCategory?: CategoryType;
+  onSelectCategory?: (category: CategoryType) => void;
   searchQuery?: string;
   onSearchChange?: (q: string) => void;
 }
@@ -37,15 +36,15 @@ export const WordListView: React.FC<WordListViewProps> = ({
   onToggleMaster,
   onSelectWord,
   audioSpeed,
-  selectedCategory = 'all',
+  selectedCategory = 'အားလုံး',
   onSelectCategory,
   searchQuery = '',
   onSearchChange,
 }) => {
   const [layoutMode, setLayoutMode] = useState<'grid' | 'compact'>('grid');
   const [statusFilter, setStatusFilter] = useState<'all' | 'starred' | 'mastered'>('all');
-  const [toneFilter, setToneFilter] = useState<ThaiTone | 'all'>('all');
-  const [activeAudioId, setActiveAudioId] = useState<string | null>(null);
+  const [toneFilter, setToneFilter] = useState<ToneType | 'all'>('all');
+  const [activeAudioId, setActiveAudioId] = useState<number | null>(null);
 
   // Apply secondary filters
   const filteredWords = words.filter((word) => {
@@ -55,7 +54,7 @@ export const WordListView: React.FC<WordListViewProps> = ({
     return true;
   });
 
-  const handlePlayRowAudio = (word: VocabularyWord, e: React.MouseEvent) => {
+  const handlePlayRowAudio = (word: VocabularyItem, e: React.MouseEvent) => {
     e.stopPropagation();
     setActiveAudioId(word.id);
     audioService.speak(
@@ -82,7 +81,7 @@ export const WordListView: React.FC<WordListViewProps> = ({
                   : 'text-[#64748B] dark:text-[#94A3B8] hover:text-[#0F172A]'
               }`}
             >
-              အားလုံး ({words.length})
+              <span lang="my">အားလုံး</span> ({words.length})
             </button>
             <button
               onClick={() => setStatusFilter('starred')}
@@ -93,7 +92,7 @@ export const WordListView: React.FC<WordListViewProps> = ({
               }`}
             >
               <Star className="w-3.5 h-3.5 fill-[#EAB308] text-[#EAB308]" />
-              <span>မှတ်သားထား ({words.filter((w) => starredIds.includes(w.id)).length})</span>
+              <span lang="my">မှတ်သားထား ({words.filter((w) => starredIds.includes(w.id)).length})</span>
             </button>
             <button
               onClick={() => setStatusFilter('mastered')}
@@ -104,7 +103,7 @@ export const WordListView: React.FC<WordListViewProps> = ({
               }`}
             >
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-              <span>ကျက်ပြီး ({words.filter((w) => masteredIds.includes(w.id)).length})</span>
+              <span lang="my">ကျက်ပြီး ({words.filter((w) => masteredIds.includes(w.id)).length})</span>
             </button>
           </div>
 
@@ -113,7 +112,7 @@ export const WordListView: React.FC<WordListViewProps> = ({
             <div className="flex items-center gap-1">
               <select
                 value={selectedCategory}
-                onChange={(e) => onSelectCategory(e.target.value)}
+                onChange={(e) => onSelectCategory(e.target.value as CategoryType)}
                 className="text-xs bg-[#F1F5F9] dark:bg-[#1E293B] text-[#334155] dark:text-[#CBD5E1] px-3 py-1.5 rounded-xl border-none focus:ring-1 focus:ring-[#9333EA] font-burmese cursor-pointer"
               >
                 {CATEGORIES.map((cat) => (
@@ -133,11 +132,11 @@ export const WordListView: React.FC<WordListViewProps> = ({
               className="text-xs bg-[#F1F5F9] dark:bg-[#1E293B] text-[#334155] dark:text-[#CBD5E1] px-3 py-1.5 rounded-xl border-none focus:ring-1 focus:ring-[#9333EA] font-burmese cursor-pointer"
             >
               <option value="all">အသံ ၅ သံ အားလုံး (All Tones)</option>
-              <option value="mid">သာမန်သံ (Mid Tone)</option>
-              <option value="low">အနိမ့်သံ (Low Tone)</option>
-              <option value="falling">သက်သံ (Falling Tone)</option>
-              <option value="high">အမြင့်သံ (High Tone)</option>
-              <option value="rising">တက်သံ (Rising Tone)</option>
+              <option value="Mid Tone">Mid Tone (အလယ်သံ)</option>
+              <option value="Low Tone">Low Tone (အသံနိမ့်)</option>
+              <option value="Falling Tone">Falling Tone (အသံနိမ့်ဆင်း)</option>
+              <option value="High Tone">High Tone (အသံမြင့်)</option>
+              <option value="Rising Tone">Rising Tone (အသံမြင့်ဆွဲ)</option>
             </select>
           </div>
 
@@ -195,8 +194,8 @@ export const WordListView: React.FC<WordListViewProps> = ({
       {filteredWords.length === 0 ? (
         <div className="text-center py-16 bg-white dark:bg-[#0F172A] rounded-2xl border border-[#E2E8F0] dark:border-[#1E293B] p-8">
           <Sparkles className="w-10 h-10 text-[#FED01B] mx-auto mb-3" />
-          <h4 className="font-bold text-base text-[#0F172A] dark:text-white">ရလဒ် မတွေ့ပါ</h4>
-          <p className="text-xs text-[#64748B] mt-1 font-burmese">
+          <h4 lang="my" className="font-bold text-base text-[#0F172A] dark:text-white font-burmese">ရလဒ် မတွေ့ပါ</h4>
+          <p lang="my" className="text-xs text-[#64748B] mt-1 font-burmese">
             ရွေးချယ်ထားသော စစ်ထုတ်မှုများနှင့် ကိုက်ညီသည့် ဝေါဟာရ မရှိပါ။
           </p>
         </div>
@@ -219,7 +218,7 @@ export const WordListView: React.FC<WordListViewProps> = ({
         /* Compact List View */
         <div className="bg-white dark:bg-[#0F172A] rounded-2xl border border-[#E2E8F0] dark:border-[#1E293B] overflow-hidden divide-y divide-[#F1F5F9] dark:divide-[#1E293B]">
           {filteredWords.map((word) => {
-            const toneInfo = TONE_DETAILS[word.tone] || TONE_DETAILS.mid;
+            const toneInfo = TONE_DETAILS[word.tone] || TONE_DETAILS["Mid Tone"];
             const isStarred = starredIds.includes(word.id);
             const isMastered = masteredIds.includes(word.id);
             const isSpeaking = activeAudioId === word.id;
@@ -244,14 +243,14 @@ export const WordListView: React.FC<WordListViewProps> = ({
 
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="font-thai font-bold text-lg text-[#0F172A] dark:text-white truncate">
+                      <span lang="th" className="font-thai font-bold text-lg text-[#0F172A] dark:text-white truncate">
                         {word.thai}
                       </span>
                       <span className={`text-[10px] font-semibold px-2 py-0.5 rounded border shrink-0 ${toneInfo.color}`}>
-                        {toneInfo.thaiLabel}
+                        {word.tone}
                       </span>
                     </div>
-                    <div className="font-phonetic text-xs font-semibold text-[#6D28D9] dark:text-[#C084FC]">
+                    <div lang="en" className="font-phonetic text-xs font-semibold text-[#6D28D9] dark:text-[#C084FC]">
                       {word.phonetic}
                     </div>
                   </div>
@@ -260,11 +259,11 @@ export const WordListView: React.FC<WordListViewProps> = ({
                 {/* Right: Burmese Translation + Star & Check actions */}
                 <div className="flex items-center gap-3 shrink-0">
                   <div className="text-right hidden sm:block">
-                    <div className="font-burmese font-bold text-sm text-[#0F172A] dark:text-white">
-                      {word.burmese}
+                    <div lang="my" className="font-burmese font-bold text-sm text-[#0F172A] dark:text-white">
+                      {word.meaning}
                     </div>
-                    <div className="font-burmese text-[11px] text-[#64748B]">
-                      {word.burmesePhonetic}
+                    <div lang="my" className="font-burmese text-[11px] text-[#64748B]">
+                      {word.myanmarReading}
                     </div>
                   </div>
 

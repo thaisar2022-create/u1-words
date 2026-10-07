@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { ViewMode, VocabularyWord, UserProgress } from './types/vocabulary';
+import { ViewMode, VocabularyWord, UserProgress, CategoryType } from './types/vocabulary';
 import { VOCABULARY_DATABASE } from './data/vocabularyData';
 import { 
   loadProgress, 
@@ -35,7 +35,7 @@ export default function App() {
   const [isDark, setIsDark] = useState<boolean>(loadTheme);
   const [audioSpeed, setAudioSpeed] = useState<number>(loadAudioSpeed);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedCategory, setSelectedCategory] = useState<CategoryType>('အားလုံး');
   const [selectedWord, setSelectedWord] = useState<VocabularyWord | null>(null);
   const [isToneGuideOpen, setIsToneGuideOpen] = useState<boolean>(false);
 
@@ -64,7 +64,7 @@ export default function App() {
     saveAudioSpeed(nextSpeed);
   };
 
-  const handleToggleStar = (id: string) => {
+  const handleToggleStar = (id: number) => {
     setProgress((prev) => {
       const exists = prev.favorites.includes(id);
       const newFavs = exists ? prev.favorites.filter((f) => f !== id) : [...prev.favorites, id];
@@ -72,7 +72,7 @@ export default function App() {
     });
   };
 
-  const handleToggleMaster = (id: string) => {
+  const handleToggleMaster = (id: number) => {
     setProgress((prev) => {
       const exists = prev.mastered.includes(id);
       const newMastered = exists ? prev.mastered.filter((m) => m !== id) : [...prev.mastered, id];
@@ -92,17 +92,17 @@ export default function App() {
   const filteredWords = useMemo(() => {
     return VOCABULARY_DATABASE.filter((w) => {
       // Category filter
-      if (selectedCategory !== 'all' && w.category !== selectedCategory) {
+      if (selectedCategory !== 'အားလုံး' && w.category !== selectedCategory) {
         return false;
       }
-      // Search filter across Thai, Phonetic, Burmese, and Burmese Phonetic
+      // Search filter across Thai, Phonetic, Burmese meaning, and Myanmar Reading
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase().trim();
         const matchThai = w.thai.toLowerCase().includes(q);
         const matchPhonetic = w.phonetic.toLowerCase().includes(q);
-        const matchBurmese = w.burmese.toLowerCase().includes(q);
-        const matchBurmesePhonetic = w.burmesePhonetic.toLowerCase().includes(q);
-        return matchThai || matchPhonetic || matchBurmese || matchBurmesePhonetic;
+        const matchMeaning = (w.meaning || '').toLowerCase().includes(q);
+        const matchReading = (w.myanmarReading || '').toLowerCase().includes(q);
+        return matchThai || matchPhonetic || matchMeaning || matchReading;
       }
       return true;
     });

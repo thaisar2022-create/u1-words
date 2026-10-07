@@ -5,7 +5,7 @@ const THEME_KEY = 'royal_marigold_theme';
 const SPEED_KEY = 'royal_marigold_audio_speed';
 
 const DEFAULT_PROGRESS: UserProgress = {
-  favorites: ['w-1', 'w-2', 'w-6'],
+  favorites: [1, 2, 70],
   mastered: [],
   streakDays: 3,
   lastStudyDate: new Date().toISOString().split('T')[0],

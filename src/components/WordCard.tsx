@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
-import { VocabularyWord } from '../types/vocabulary';
+import { VocabularyItem } from '../types/vocabulary';
 import { audioService } from '../utils/audio';
 import { TONE_DETAILS } from '../data/vocabularyData';
-import { Volume2, Star, CheckCircle2, ChevronRight, BookOpen } from 'lucide-react';
+import { Volume2, Star, CheckCircle2, ChevronRight } from 'lucide-react';
 
 interface WordCardProps {
-  word: VocabularyWord;
+  word: VocabularyItem;
   isStarred: boolean;
   isMastered: boolean;
-  onToggleStar: (id: string) => void;
-  onToggleMaster: (id: string) => void;
-  onSelectWord: (word: VocabularyWord) => void;
+  onToggleStar: (id: number) => void;
+  onToggleMaster: (id: number) => void;
+  onSelectWord: (word: VocabularyItem) => void;
   audioSpeed: number;
 }
 
@@ -24,7 +24,7 @@ export const WordCard: React.FC<WordCardProps> = ({
   audioSpeed,
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
-  const toneInfo = TONE_DETAILS[word.tone] || TONE_DETAILS.mid;
+  const toneInfo = TONE_DETAILS[word.tone] || TONE_DETAILS["Mid Tone"];
 
   const handleAudioClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -58,10 +58,10 @@ export const WordCard: React.FC<WordCardProps> = ({
         <div className="flex items-center justify-between gap-2 mb-3">
           <div className="flex items-center gap-2">
             <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-md border ${toneInfo.color}`}>
-              {toneInfo.thaiLabel} · {word.toneNameBurmese}
+              {word.tone} {word.toneMyanmar ? `· ${word.toneMyanmar}` : ''}
             </span>
-            <span className="text-xs text-[#64748B] dark:text-[#94A3B8] font-burmese">
-              {word.partOfSpeech}
+            <span lang="my" className="text-xs text-[#64748B] dark:text-[#94A3B8] font-burmese">
+              {word.category}
             </span>
           </div>
 
@@ -91,11 +91,11 @@ export const WordCard: React.FC<WordCardProps> = ({
         {/* Content Block: Thai Headword + Phonetic */}
         <div className="mb-3">
           <div className="flex items-baseline justify-between gap-2">
-            <h3 className="font-thai font-extrabold text-2xl sm:text-3xl text-[#0F172A] dark:text-white tracking-wide group-hover:text-[#6D28D9] dark:group-hover:text-[#C084FC] transition-colors">
+            <h3 lang="th" className="font-thai font-extrabold text-2xl sm:text-3xl text-[#0F172A] dark:text-white tracking-wide group-hover:text-[#6D28D9] dark:group-hover:text-[#C084FC] transition-colors">
               {word.thai}
             </h3>
           </div>
-          <div className="font-phonetic font-bold text-sm text-[#6D28D9] dark:text-[#C084FC] mt-0.5">
+          <div lang="en" className="font-phonetic font-bold text-sm text-[#6D28D9] dark:text-[#C084FC] mt-0.5">
             {word.phonetic}
           </div>
         </div>
@@ -105,11 +105,11 @@ export const WordCard: React.FC<WordCardProps> = ({
       <div className="pt-3 border-t border-[#F1F5F9] dark:border-[#1E293B]">
         <div className="flex items-center justify-between">
           <div>
-            <div className="font-burmese font-bold text-base text-[#0F172A] dark:text-white">
-              {word.burmese}
+            <div lang="my" className="font-burmese font-bold text-base text-[#0F172A] dark:text-white">
+              {word.meaning}
             </div>
-            <div className="font-burmese text-xs text-[#64748B] dark:text-[#94A3B8]">
-              {word.burmesePhonetic}
+            <div lang="my" className="font-burmese text-xs text-[#64748B] dark:text-[#94A3B8]">
+              အသံထွက်: {word.myanmarReading}
             </div>
           </div>
 

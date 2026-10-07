@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { VocabularyWord } from '../types/vocabulary';
+import { VocabularyItem } from '../types/vocabulary';
 import { audioService } from '../utils/audio';
 import { TONE_DETAILS } from '../data/vocabularyData';
 import { 
@@ -8,19 +8,17 @@ import {
   Star, 
   CheckCircle2, 
   BookOpen, 
-  Lightbulb, 
-  Repeat,
   Snail
 } from 'lucide-react';
 
 interface WordDetailModalProps {
-  word: VocabularyWord | null;
+  word: VocabularyItem | null;
   isOpen: boolean;
   onClose: () => void;
   isStarred: boolean;
   isMastered: boolean;
-  onToggleStar: (id: string) => void;
-  onToggleMaster: (id: string) => void;
+  onToggleStar: (id: number) => void;
+  onToggleMaster: (id: number) => void;
   audioSpeed: number;
 }
 
@@ -39,7 +37,7 @@ export const WordDetailModal: React.FC<WordDetailModalProps> = ({
 
   if (!isOpen || !word) return null;
 
-  const toneInfo = TONE_DETAILS[word.tone] || TONE_DETAILS.mid;
+  const toneInfo = TONE_DETAILS[word.tone] || TONE_DETAILS["Mid Tone"];
 
   const handlePlayWord = (rate: number = audioSpeed) => {
     setIsPlaying(true);
@@ -53,6 +51,7 @@ export const WordDetailModal: React.FC<WordDetailModalProps> = ({
   };
 
   const handlePlayExample = () => {
+    if (!word.exampleThai) return;
     setPlayingExample(true);
     audioService.speak(
       word.exampleThai,
@@ -76,7 +75,7 @@ export const WordDetailModal: React.FC<WordDetailModalProps> = ({
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <span className={`px-3 py-1 rounded-lg text-xs font-bold border ${toneInfo.color}`}>
-              {toneInfo.thaiLabel} · {word.toneNameBurmese}
+              {word.tone} {word.toneMyanmar ? `· ${word.toneMyanmar}` : ''}
             </span>
             <span className="font-mono text-xs text-[#64748B]">
               {toneInfo.pitch}
@@ -109,17 +108,17 @@ export const WordDetailModal: React.FC<WordDetailModalProps> = ({
 
         {/* Big Thai Display */}
         <div className="text-center py-4 bg-gradient-to-b from-[#FAF5FF] to-white dark:from-[#3B0764]/20 dark:to-transparent rounded-2xl border border-purple-100 dark:border-purple-900/20 mb-6">
-          <h2 className="font-thai font-extrabold text-5xl sm:text-6xl text-[#0F172A] dark:text-white tracking-wide mb-2 leading-tight">
+          <h2 lang="th" className="font-thai font-extrabold text-5xl sm:text-6xl text-[#0F172A] dark:text-white tracking-wide mb-2 leading-tight">
             {word.thai}
           </h2>
-          <div className="font-phonetic font-bold text-lg text-[#6D28D9] dark:text-[#C084FC]">
+          <div lang="en" className="font-phonetic font-bold text-lg text-[#6D28D9] dark:text-[#C084FC]">
             {word.phonetic}
           </div>
-          <div className="font-burmese font-bold text-2xl text-[#0F172A] dark:text-white mt-2">
-            {word.burmese}
+          <div lang="my" className="font-burmese font-bold text-2xl text-[#0F172A] dark:text-white mt-2">
+            {word.meaning}
           </div>
-          <div className="font-burmese text-xs text-[#64748B] dark:text-[#94A3B8] mt-1">
-            မြန်မာအသံထွက်: <span className="font-semibold text-[#6D28D9] dark:text-[#C084FC]">{word.burmesePhonetic}</span>
+          <div lang="my" className="font-burmese text-xs text-[#64748B] dark:text-[#94A3B8] mt-1">
+            မြန်မာအသံထွက်: <span className="font-semibold text-[#6D28D9] dark:text-[#C084FC]">{word.myanmarReading}</span>
           </div>
         </div>
 
@@ -132,7 +131,7 @@ export const WordDetailModal: React.FC<WordDetailModalProps> = ({
             }`}
           >
             <Volume2 className="w-4 h-4" />
-            <span>ပုံမှန်အသံထွက် (1.0x)</span>
+            <span lang="my" className="font-burmese">ပုံမှန်အသံထွက် (1.0x)</span>
           </button>
 
           <button
@@ -140,47 +139,42 @@ export const WordDetailModal: React.FC<WordDetailModalProps> = ({
             className="py-3 px-4 rounded-2xl bg-[#FAF5FF] dark:bg-[#1E1B4B] text-[#6D28D9] dark:text-[#E9D5FF] border border-purple-200 dark:border-purple-800 hover:bg-[#F3E8FF] flex items-center justify-center gap-2 font-bold text-xs transition-all cursor-pointer"
           >
             <Snail className="w-4 h-4 text-[#9333EA]" />
-            <span>ဖြည်းဖြည်းနားထောင် (0.7x)</span>
+            <span lang="my" className="font-burmese">ဖြည်းဖြည်းနားထောင် (0.7x)</span>
           </button>
         </div>
 
-        {/* Example Sentence Section */}
-        <div className="p-4 rounded-2xl bg-[#F8FAFC] dark:bg-[#1E293B]/50 border border-[#E2E8F0] dark:border-[#1E293B] mb-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] font-bold text-[#6D28D9] dark:text-[#C084FC] uppercase tracking-wider flex items-center gap-1.5 font-burmese">
-              <BookOpen className="w-3.5 h-3.5" />
-              <span>ဥပမာ ဝါကျ (Example Sentence)</span>
-            </span>
-            <button
-              onClick={handlePlayExample}
-              className={`p-1.5 rounded-lg text-[#6D28D9] hover:bg-purple-100 dark:hover:bg-purple-900/40 cursor-pointer ${
-                playingExample ? 'animate-bounce text-[#EAB308]' : ''
-              }`}
-              title="Play example sentence"
-            >
-              <Volume2 className="w-4 h-4" />
-            </button>
-          </div>
-
-          <div className="font-thai font-medium text-base text-[#0F172A] dark:text-white leading-relaxed">
-            {word.exampleThai}
-          </div>
-          <div className="font-phonetic text-xs text-[#64748B] dark:text-[#94A3B8] my-1">
-            {word.examplePhonetic}
-          </div>
-          <div className="font-burmese text-xs text-[#334155] dark:text-[#CBD5E1] pt-1 border-t border-slate-200 dark:border-slate-800">
-            {word.exampleBurmese}
-          </div>
-        </div>
-
-        {/* Cultural Tip / Grammar Note */}
-        {word.notes && (
-          <div className="p-3.5 rounded-2xl bg-[#FEF9C3] dark:bg-amber-950/30 border border-[#FDE047]/60 text-xs font-burmese text-[#713F12] dark:text-[#FDE047] flex items-start gap-2.5">
-            <Lightbulb className="w-4 h-4 shrink-0 text-amber-600 mt-0.5" />
-            <div>
-              <span className="font-bold">အသုံးဝင်သော မှတ်ချက်: </span>
-              {word.notes}
+        {/* Example Sentence Section (if available) */}
+        {word.exampleThai && (
+          <div className="p-4 rounded-2xl bg-[#F8FAFC] dark:bg-[#1E293B]/50 border border-[#E2E8F0] dark:border-[#1E293B] mb-4">
+            <div className="flex items-center justify-between mb-2">
+              <span lang="my" className="text-[11px] font-bold text-[#6D28D9] dark:text-[#C084FC] uppercase tracking-wider flex items-center gap-1.5 font-burmese">
+                <BookOpen className="w-3.5 h-3.5" />
+                <span>ဥပမာ ဝါကျ (Example Sentence)</span>
+              </span>
+              <button
+                onClick={handlePlayExample}
+                className={`p-1.5 rounded-lg text-[#6D28D9] hover:bg-purple-100 dark:hover:bg-purple-900/40 cursor-pointer ${
+                  playingExample ? 'animate-bounce text-[#EAB308]' : ''
+                }`}
+                title="Play example sentence"
+              >
+                <Volume2 className="w-4 h-4" />
+              </button>
             </div>
+
+            <div lang="th" className="font-thai font-medium text-base text-[#0F172A] dark:text-white leading-relaxed">
+              {word.exampleThai}
+            </div>
+            {word.examplePhonetic && (
+              <div lang="en" className="font-phonetic text-xs text-[#64748B] dark:text-[#94A3B8] my-1">
+                {word.examplePhonetic}
+              </div>
+            )}
+            {word.exampleMyanmar && (
+              <div lang="my" className="font-burmese text-xs text-[#334155] dark:text-[#CBD5E1] pt-1 border-t border-slate-200 dark:border-slate-800">
+                {word.exampleMyanmar}
+              </div>
+            )}
           </div>
         )}
       </div>

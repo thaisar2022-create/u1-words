@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { ToneType } from '../types/vocabulary';
 import { TONE_DETAILS, TONE_CONSONANT_RULES } from '../data/vocabularyData';
 import { audioService } from '../utils/audio';
 import { Volume2, X, Sparkles, BookOpen, ChevronRight } from 'lucide-react';
@@ -19,12 +20,12 @@ export const ToneGuideModal: React.FC<ToneGuideModalProps> = ({
 
   if (!isOpen) return null;
 
-  const toneExamples = [
-    { toneKey: 'mid', thai: 'กา', phonetic: 'gaa', burmese: 'ကာ (သာမန်)', burmeseSound: 'ကာ' },
-    { toneKey: 'low', thai: 'ก่า', phonetic: 'gàa', burmese: 'ကှာ (အောက်မြစ် အနိမ့်သံ)', burmeseSound: 'ကှာ' },
-    { toneKey: 'falling', thai: 'ก้า', phonetic: 'gâa', burmese: 'ကား (သက်သံ အမြင့်မှစိုက်ဆင်း)', burmeseSound: 'ကား' },
-    { toneKey: 'high', thai: 'ก๊า', phonetic: 'gáa', burmese: 'ကှား (အမြင့်သံ ဝစ္စပေါက်)', burmeseSound: 'ကှား' },
-    { toneKey: 'rising', thai: 'ก๋า', phonetic: 'gǎa', burmese: 'ကာ (တက်သံ မေးခွန်းသံ)', burmeseSound: 'ကာ' },
+  const toneExamples: { toneKey: ToneType; thai: string; phonetic: string; burmese: string; burmeseSound: string }[] = [
+    { toneKey: 'Mid Tone', thai: 'กา', phonetic: 'gaa', burmese: 'ကာ (သာမန်)', burmeseSound: 'ကာ' },
+    { toneKey: 'Low Tone', thai: 'ก่า', phonetic: 'gàa', burmese: 'ကှာ (အောက်မြစ် အနိမ့်သံ)', burmeseSound: 'ကှာ' },
+    { toneKey: 'Falling Tone', thai: 'ก้า', phonetic: 'gâa', burmese: 'ကား (သက်သံ အမြင့်မှစိုက်ဆင်း)', burmeseSound: 'ကား' },
+    { toneKey: 'High Tone', thai: 'ก๊ာ', phonetic: 'gáa', burmese: 'ကှား (အမြင့်သံ ဝစ္စပေါက်)', burmeseSound: 'ကှား' },
+    { toneKey: 'Rising Tone', thai: 'ก๋า', phonetic: 'gǎa', burmese: 'ကာ (တက်သံ မေးခွန်းသံ)', burmeseSound: 'ကာ' },
   ];
 
   const handlePlaySample = (text: string, key: string) => {
@@ -169,7 +170,7 @@ export const ToneGuideModal: React.FC<ToneGuideModalProps> = ({
                     </div>
 
                     <button
-                      onClick={() => handlePlaySample(key === 'mid' ? 'มา' : key === 'low' ? 'หม่า' : key === 'falling' ? 'ม่า' : key === 'high' ? 'ม้า' : 'หมา', key)}
+                      onClick={() => handlePlaySample(key === 'Mid Tone' ? 'มา' : key === 'Low Tone' ? 'หม่า' : key === 'Falling Tone' ? 'ม่า' : key === 'High Tone' ? 'ม้า' : 'หมา', key)}
                       className="shrink-0 p-2.5 rounded-xl bg-[#FAF5FF] dark:bg-[#3B0764] text-[#6D28D9] dark:text-[#E9D5FF] hover:bg-[#F3E8FF] flex items-center gap-1.5 text-xs font-semibold cursor-pointer"
                     >
                       <Volume2 className="w-3.5 h-3.5" />

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { VocabularyWord, ThaiTone } from '../types/vocabulary';
+import { VocabularyItem, ToneType } from '../types/vocabulary';
 import { audioService } from '../utils/audio';
 import { TONE_DETAILS } from '../data/vocabularyData';
 import confetti from 'canvas-confetti';
@@ -11,12 +11,11 @@ import {
   Sparkles, 
   Trophy, 
   ArrowRight,
-  HelpCircle,
   Headphones
 } from 'lucide-react';
 
 interface QuizArenaProps {
-  words: VocabularyWord[];
+  words: VocabularyItem[];
   audioSpeed: number;
   onUpdateHighScore: (score: number) => void;
   onReturnToStudy: () => void;
@@ -26,7 +25,7 @@ type QuizType = 'thai-to-burmese' | 'burmese-to-thai' | 'listening' | 'tone';
 
 interface Question {
   type: QuizType;
-  targetWord: VocabularyWord;
+  targetWord: VocabularyItem;
   promptText: string;
   subPrompt?: string;
   options: { label: string; subLabel?: string; isCorrect: boolean }[];
@@ -62,10 +61,10 @@ export const QuizArena: React.FC<QuizArenaProps> = ({
 
       if (type === 'thai-to-burmese') {
         const options = [
-          { label: targetWord.burmese, subLabel: targetWord.burmesePhonetic, isCorrect: true },
+          { label: targetWord.meaning, subLabel: `အသံထွက်: ${targetWord.myanmarReading}`, isCorrect: true },
           ...distractors.map((d) => ({
-            label: d.burmese,
-            subLabel: d.burmesePhonetic,
+            label: d.meaning,
+            subLabel: `အသံထွက်: ${d.myanmarReading}`,
             isCorrect: false,
           })),
         ].sort(() => 0.5 - Math.random());
@@ -90,16 +89,16 @@ export const QuizArena: React.FC<QuizArenaProps> = ({
         return {
           type,
           targetWord,
-          promptText: targetWord.burmese,
-          subPrompt: `အသံထွက်: ${targetWord.burmesePhonetic}`,
+          promptText: targetWord.meaning,
+          subPrompt: `အသံထွက်: ${targetWord.myanmarReading}`,
           options,
         };
       } else if (type === 'listening') {
         const options = [
-          { label: targetWord.thai, subLabel: `${targetWord.burmese} (${targetWord.phonetic})`, isCorrect: true },
+          { label: targetWord.thai, subLabel: `${targetWord.meaning} (${targetWord.phonetic})`, isCorrect: true },
           ...distractors.map((d) => ({
             label: d.thai,
-            subLabel: `${d.burmese} (${d.phonetic})`,
+            subLabel: `${d.meaning} (${d.phonetic})`,
             isCorrect: false,
           })),
         ].sort(() => 0.5 - Math.random());
@@ -113,11 +112,11 @@ export const QuizArena: React.FC<QuizArenaProps> = ({
         };
       } else {
         // Tone identification
-        const allTones: ThaiTone[] = ['mid', 'low', 'falling', 'high', 'rising'];
+        const allTones: ToneType[] = ["Mid Tone", "Low Tone", "Falling Tone", "High Tone", "Rising Tone"];
         const options = allTones.map((tone) => {
           const detail = TONE_DETAILS[tone];
           return {
-            label: `${detail.thaiLabel} · ${detail.burmeseLabel}`,
+            label: `${detail.label} (${detail.burmeseLabel})`,
             subLabel: detail.pitch,
             isCorrect: tone === targetWord.tone,
           };
@@ -127,7 +126,7 @@ export const QuizArena: React.FC<QuizArenaProps> = ({
           type,
           targetWord,
           promptText: targetWord.thai,
-          subPrompt: `${targetWord.phonetic} (${targetWord.burmese}) - ဤစကားလုံးသည် မည်သည့်အသံဖြစ်သနည်း?`,
+          subPrompt: `${targetWord.phonetic} (${targetWord.meaning}) - ဤစကားလုံးသည် မည်သည့်အသံဖြစ်သနည်း?`,
           options,
         };
       }
@@ -204,7 +203,7 @@ export const QuizArena: React.FC<QuizArenaProps> = ({
     return (
       <div className="text-center py-12">
         <Sparkles className="w-8 h-8 text-[#FED01B] mx-auto mb-2 animate-spin" />
-        <p className="text-sm text-[#64748B]">ဉာဏ်စမ်းမေးခွန်းများ ပြင်ဆင်နေပါသည်...</p>
+        <p lang="my" className="text-sm text-[#64748B] font-burmese">ဉာဏ်စမ်းမေးခွန်းများ ပြင်ဆင်နေပါသည်...</p>
       </div>
     );
   }
@@ -221,7 +220,7 @@ export const QuizArena: React.FC<QuizArenaProps> = ({
               : 'text-[#64748B] hover:text-[#0F172A]'
           }`}
         >
-          ထိုင်း ➔ မြန်မာ
+          <span lang="my" className="font-burmese">ထိုင်း ➔ မြန်မာ</span>
         </button>
         <button
           onClick={() => setQuizType('burmese-to-thai')}
@@ -231,7 +230,7 @@ export const QuizArena: React.FC<QuizArenaProps> = ({
               : 'text-[#64748B] hover:text-[#0F172A]'
           }`}
         >
-          မြန်မာ ➔ ထိုင်း
+          <span lang="my" className="font-burmese">မြန်မာ ➔ ထိုင်း</span>
         </button>
         <button
           onClick={() => setQuizType('listening')}
@@ -242,7 +241,7 @@ export const QuizArena: React.FC<QuizArenaProps> = ({
           }`}
         >
           <Headphones className="w-3.5 h-3.5" />
-          <span>အသံနားထောင်</span>
+          <span lang="my" className="font-burmese">အသံနားထောင်</span>
         </button>
         <button
           onClick={() => setQuizType('tone')}
@@ -252,7 +251,7 @@ export const QuizArena: React.FC<QuizArenaProps> = ({
               : 'text-[#64748B] hover:text-[#0F172A]'
           }`}
         >
-          အသံ ၅ သံ
+          <span lang="my" className="font-burmese">အသံ ၅ သံ</span>
         </button>
       </div>
 
@@ -260,12 +259,12 @@ export const QuizArena: React.FC<QuizArenaProps> = ({
         <div className="bg-white dark:bg-[#0F172A] rounded-3xl border border-[#E2E8F0] dark:border-[#1E293B] shadow-xl shadow-purple-950/5 p-6 sm:p-8">
           {/* Progress Header */}
           <div className="flex items-center justify-between mb-6">
-            <span className="font-mono text-xs font-semibold px-2.5 py-1 rounded-md bg-[#F1F5F9] dark:bg-[#1E293B] text-[#64748B] dark:text-[#94A3B8]">
+            <span lang="my" className="font-mono text-xs font-semibold px-2.5 py-1 rounded-md bg-[#F1F5F9] dark:bg-[#1E293B] text-[#64748B] dark:text-[#94A3B8]">
               မေးခွန်း {currentIndex + 1} / {questions.length}
             </span>
             <div className="flex items-center gap-1 text-xs font-semibold text-[#EAB308]">
               <Trophy className="w-4 h-4 fill-[#FED01B] text-[#EAB308]" />
-              <span className="font-mono">ရမှတ်: {score}</span>
+              <span lang="my" className="font-mono">ရမှတ်: {score}</span>
             </div>
           </div>
 
@@ -290,20 +289,20 @@ export const QuizArena: React.FC<QuizArenaProps> = ({
                 >
                   <Volume2 className="w-8 h-8" />
                 </button>
-                <span className="font-burmese text-sm font-bold text-[#0F172A] dark:text-white mt-3">
+                <span lang="my" className="font-burmese text-sm font-bold text-[#0F172A] dark:text-white mt-3">
                   အသံကို နားထောင်ပြီး မှန်ကန်သည့်စာလုံး ရွေးပါ
                 </span>
-                <span className="text-xs text-[#64748B] mt-0.5">
+                <span lang="my" className="text-xs text-[#64748B] mt-0.5 font-burmese">
                   (ပြန်လည်နားထောင်ရန် ခလုတ်ကို နှိပ်ပါ)
                 </span>
               </div>
             ) : (
               <>
-                <h3 className="font-thai font-extrabold text-3xl sm:text-4xl text-[#0F172A] dark:text-white mb-2">
+                <h3 lang="th" className="font-thai font-extrabold text-3xl sm:text-4xl text-[#0F172A] dark:text-white mb-2">
                   {currentQ.promptText}
                 </h3>
                 {currentQ.subPrompt && (
-                  <p className="font-burmese text-sm text-[#6D28D9] dark:text-[#C084FC] font-semibold">
+                  <p lang="my" className="font-burmese text-sm text-[#6D28D9] dark:text-[#C084FC] font-semibold">
                     {currentQ.subPrompt}
                   </p>
                 )}
@@ -335,11 +334,11 @@ export const QuizArena: React.FC<QuizArenaProps> = ({
                   className={`w-full p-4 rounded-2xl border text-left flex items-center justify-between gap-3 transition-all cursor-pointer ${style}`}
                 >
                   <div>
-                    <div className="font-burmese font-bold text-base sm:text-lg">
+                    <div lang="my" className="font-burmese font-bold text-base sm:text-lg">
                       {opt.label}
                     </div>
                     {opt.subLabel && (
-                      <div className="text-xs text-[#64748B] dark:text-[#94A3B8] mt-0.5">
+                      <div lang="my" className="text-xs text-[#64748B] dark:text-[#94A3B8] mt-0.5 font-burmese">
                         {opt.subLabel}
                       </div>
                     )}
@@ -368,7 +367,7 @@ export const QuizArena: React.FC<QuizArenaProps> = ({
                   className="p-2 rounded-xl bg-[#FAF5FF] dark:bg-[#3B0764] text-[#6D28D9] dark:text-[#E9D5FF] hover:bg-[#F3E8FF] transition-colors cursor-pointer flex items-center gap-1.5 text-xs font-semibold"
                 >
                   <Volume2 className="w-4 h-4" />
-                  <span>ပြန်နားထောင်မည်</span>
+                  <span lang="my" className="font-burmese">ပြန်နားထောင်မည်</span>
                 </button>
               </div>
 
@@ -376,7 +375,7 @@ export const QuizArena: React.FC<QuizArenaProps> = ({
                 onClick={handleNextQuestion}
                 className="py-3 px-6 rounded-2xl bg-[#9333EA] text-white hover:bg-[#7E22CE] font-bold text-sm flex items-center gap-2 transition-all cursor-pointer shadow-md shadow-purple-900/20 active:scale-95"
               >
-                <span>{currentIndex + 1 === questions.length ? 'ရလဒ်ကြည့်မည်' : 'ရှေ့သို့'}</span>
+                <span lang="my" className="font-burmese">{currentIndex + 1 === questions.length ? 'ရလဒ်ကြည့်မည်' : 'ရှေ့သို့'}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -389,10 +388,10 @@ export const QuizArena: React.FC<QuizArenaProps> = ({
             <Trophy className="w-10 h-10 text-[#EAB308] fill-[#FED01B]" />
           </div>
 
-          <h3 className="font-burmese font-bold text-2xl text-[#0F172A] dark:text-white mb-2">
+          <h3 lang="my" className="font-burmese font-bold text-2xl text-[#0F172A] dark:text-white mb-2">
             ဂုဏ်ယူပါတယ်! လေ့ကျင့်မှု ပြီးဆုံးပါပြီ
           </h3>
-          <p className="font-burmese text-sm text-[#64748B] dark:text-[#94A3B8] max-w-sm mx-auto mb-6">
+          <p lang="my" className="font-burmese text-sm text-[#64748B] dark:text-[#94A3B8] max-w-sm mx-auto mb-6">
             သင်၏ မှတ်မိနိုင်စွမ်းကို စမ်းသပ်စစ်ဆေးခဲ့ပြီး ရရှိသော ရမှတ်မှာ အောက်ပါအတိုင်း ဖြစ်ပါသည်:
           </p>
 
@@ -403,7 +402,7 @@ export const QuizArena: React.FC<QuizArenaProps> = ({
             <span className="text-xl text-[#64748B] dark:text-[#94A3B8] font-bold">
               / {questions.length}
             </span>
-            <span className="ml-2 font-burmese text-sm font-semibold text-[#EAB308]">
+            <span lang="my" className="ml-2 font-burmese text-sm font-semibold text-[#EAB308]">
               {score >= 8 ? '🌟 အလွန်ထူးချွန်သည်' : score >= 5 ? '👍 ကောင်းမွန်ပါသည်' : '💪 ထပ်မံလေ့ကျင့်ပါ'}
             </span>
           </div>
@@ -414,14 +413,14 @@ export const QuizArena: React.FC<QuizArenaProps> = ({
               className="w-full sm:w-auto py-3.5 px-6 rounded-2xl bg-[#9333EA] text-white hover:bg-[#7E22CE] font-bold text-sm flex items-center justify-center gap-2 cursor-pointer shadow-md transition-all active:scale-95"
             >
               <RotateCcw className="w-4 h-4" />
-              <span>ထပ်မံစမ်းသပ်မည်</span>
+              <span lang="my" className="font-burmese">ထပ်မံစမ်းသပ်မည်</span>
             </button>
 
             <button
               onClick={onReturnToStudy}
               className="w-full sm:w-auto py-3.5 px-6 rounded-2xl bg-[#F1F5F9] dark:bg-[#1E293B] text-[#334155] dark:text-[#CBD5E1] hover:bg-[#E2E8F0] font-semibold text-sm cursor-pointer transition-colors"
             >
-              ကတ်ပြားများသို့ ပြန်သွားမည်
+              <span lang="my" className="font-burmese">ဝေါဟာရစာရင်းသို့ ပြန်သွားမည်</span>
             </button>
           </div>
         </div>

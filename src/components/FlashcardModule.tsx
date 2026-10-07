@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { VocabularyWord } from '../types/vocabulary';
+import { VocabularyItem } from '../types/vocabulary';
 import { audioService } from '../utils/audio';
 import { TONE_DETAILS } from '../data/vocabularyData';
 import { 
@@ -15,11 +15,11 @@ import {
 } from 'lucide-react';
 
 interface FlashcardModuleProps {
-  words: VocabularyWord[];
-  starredIds: string[];
-  masteredIds: string[];
-  onToggleStar: (id: string) => void;
-  onToggleMaster: (id: string) => void;
+  words: VocabularyItem[];
+  starredIds: number[];
+  masteredIds: number[];
+  onToggleStar: (id: number) => void;
+  onToggleMaster: (id: number) => void;
   audioSpeed: number;
 }
 
@@ -68,8 +68,8 @@ export const FlashcardModule: React.FC<FlashcardModuleProps> = ({
     return (
       <div className="text-center py-16 bg-white dark:bg-[#0F172A] rounded-3xl border border-[#E2E8F0] dark:border-[#1E293B] p-8">
         <Sparkles className="w-12 h-12 text-[#FED01B] mx-auto mb-3" />
-        <h3 className="text-lg font-bold text-[#0F172A] dark:text-white">ဝေါဟာရ မရှိပါ</h3>
-        <p className="text-sm text-[#64748B] mt-1 font-burmese">
+        <h3 lang="my" className="text-lg font-bold text-[#0F172A] dark:text-white font-burmese">ဝေါဟာရ မရှိပါ</h3>
+        <p lang="my" className="text-sm text-[#64748B] mt-1 font-burmese">
           ရွေးချယ်ထားသော အုပ်စုတွင် စာလုံးမတွေ့ပါ။ အခြားအုပ်စုကို ရွေးပါ သို့မဟုတ် ရှာဖွေမှု ဖျက်ပါ။
         </p>
       </div>
@@ -103,7 +103,7 @@ export const FlashcardModule: React.FC<FlashcardModuleProps> = ({
     );
   };
 
-  const toneInfo = TONE_DETAILS[currentWord.tone] || TONE_DETAILS.mid;
+  const toneInfo = TONE_DETAILS[currentWord.tone] || TONE_DETAILS["Mid Tone"];
 
   return (
     <div className="max-w-xl mx-auto">
@@ -119,7 +119,7 @@ export const FlashcardModule: React.FC<FlashcardModuleProps> = ({
             title="Toggle prompt script"
           >
             <ArrowRightLeft className="w-3.5 h-3.5" />
-            <span>{promptInBurmese ? 'မြန်မာ ➔ ထိုင်း' : 'ထိုင်း ➔ မြန်မာ'}</span>
+            <span lang="my" className="font-burmese">{promptInBurmese ? 'မြန်မာ ➔ ထိုင်း' : 'ထိုင်း ➔ မြန်မာ'}</span>
           </button>
         </div>
 
@@ -168,10 +168,10 @@ export const FlashcardModule: React.FC<FlashcardModuleProps> = ({
         >
           {/* FRONT FACE */}
           <div className="absolute inset-0 w-full h-full backface-hidden rounded-3xl bg-white dark:bg-[#0F172A] border-2 border-[#E9D5FF] dark:border-[#581C87] shadow-xl shadow-purple-900/5 p-7 flex flex-col justify-between">
-            {/* Header: Category & Tone Indicator (Quiet text) */}
+            {/* Header: Category & Flip hint */}
             <div className="flex items-center justify-between text-xs text-[#64748B] dark:text-[#94A3B8]">
-              <span className="font-burmese font-medium">{currentWord.partOfSpeech}</span>
-              <span className="text-[11px] font-semibold text-[#6D28D9] dark:text-[#C084FC]">
+              <span lang="my" className="font-burmese font-medium">{currentWord.category}</span>
+              <span lang="my" className="text-[11px] font-semibold text-[#6D28D9] dark:text-[#C084FC] font-burmese">
                 ကတ်ပြားကို နှိပ်ပါ (Tap to Flip)
               </span>
             </div>
@@ -180,25 +180,25 @@ export const FlashcardModule: React.FC<FlashcardModuleProps> = ({
             <div className="text-center my-auto py-4">
               {promptInBurmese ? (
                 <>
-                  <div className="text-xs uppercase tracking-wider text-[#6D28D9] dark:text-[#C084FC] font-semibold mb-2">
+                  <div lang="my" className="text-xs uppercase tracking-wider text-[#6D28D9] dark:text-[#C084FC] font-semibold mb-2 font-burmese">
                     မြန်မာအဓိပ္ပာယ်
                   </div>
-                  <h2 className="font-burmese font-bold text-3xl sm:text-4xl text-[#0F172A] dark:text-white leading-relaxed mb-3">
-                    {currentWord.burmese}
+                  <h2 lang="my" className="font-burmese font-bold text-3xl sm:text-4xl text-[#0F172A] dark:text-white leading-relaxed mb-3">
+                    {currentWord.meaning}
                   </h2>
-                  <div className="font-burmese text-sm text-[#64748B] dark:text-[#94A3B8]">
-                    အသံထွက်အနီးစပ်ဆုံး: <span className="font-bold text-[#6D28D9] dark:text-[#C084FC]">{currentWord.burmesePhonetic}</span>
+                  <div lang="my" className="font-burmese text-sm text-[#64748B] dark:text-[#94A3B8]">
+                    အသံထွက်: <span className="font-bold text-[#6D28D9] dark:text-[#C084FC]">{currentWord.myanmarReading}</span>
                   </div>
                 </>
               ) : (
                 <>
-                  <div className="text-xs uppercase tracking-wider text-[#6D28D9] dark:text-[#C084FC] font-semibold mb-2">
+                  <div lang="my" className="text-xs uppercase tracking-wider text-[#6D28D9] dark:text-[#C084FC] font-semibold mb-2 font-burmese">
                     ထိုင်းစာလုံး
                   </div>
-                  <h2 className="font-thai font-extrabold text-4xl sm:text-5xl text-[#0F172A] dark:text-white tracking-wide mb-3">
+                  <h2 lang="th" className="font-thai font-extrabold text-4xl sm:text-5xl text-[#0F172A] dark:text-white tracking-wide mb-3">
                     {currentWord.thai}
                   </h2>
-                  <div className="font-phonetic text-base font-bold text-[#6D28D9] dark:text-[#C084FC]">
+                  <div lang="en" className="font-phonetic text-base font-bold text-[#6D28D9] dark:text-[#C084FC]">
                     {currentWord.phonetic}
                   </div>
                 </>
@@ -215,12 +215,12 @@ export const FlashcardModule: React.FC<FlashcardModuleProps> = ({
                 title="Listen to Thai pronunciation"
               >
                 <Volume2 className={`w-4 h-4 ${isPlayingAudio ? 'animate-bounce text-[#EAB308]' : ''}`} />
-                <span>အသံနားထောင်မည်</span>
+                <span lang="my" className="font-burmese">အသံနားထောင်မည်</span>
               </button>
 
               <div className="flex items-center gap-1.5 text-xs text-[#94A3B8]">
                 <RotateCw className="w-3.5 h-3.5" />
-                <span>လှန်ကြည့်ရန်</span>
+                <span lang="my" className="font-burmese">လှန်ကြည့်ရန်</span>
               </div>
             </div>
           </div>
@@ -230,7 +230,7 @@ export const FlashcardModule: React.FC<FlashcardModuleProps> = ({
             {/* Header: Tone Classification Badge & Star */}
             <div className="flex items-center justify-between text-xs">
               <span className={`px-2.5 py-1 rounded-md text-xs font-semibold border ${toneInfo.color}`}>
-                {toneInfo.thaiLabel} · {toneInfo.burmeseLabel}
+                {currentWord.tone} {currentWord.toneMyanmar ? `· ${currentWord.toneMyanmar}` : ''}
               </span>
               <span className="font-mono text-xs text-[#64748B] dark:text-[#94A3B8]">
                 {toneInfo.pitch}
@@ -239,40 +239,39 @@ export const FlashcardModule: React.FC<FlashcardModuleProps> = ({
 
             {/* Revealed Answer Center Content */}
             <div className="text-center my-auto py-2">
-              <h2 className="font-thai font-extrabold text-4xl sm:text-5xl text-[#0F172A] dark:text-white tracking-wide mb-2 leading-tight">
+              <h2 lang="th" className="font-thai font-extrabold text-4xl sm:text-5xl text-[#0F172A] dark:text-white tracking-wide mb-2 leading-tight">
                 {currentWord.thai}
               </h2>
               
-              <div className="font-phonetic font-bold text-lg text-[#6D28D9] dark:text-[#C084FC] mb-2">
+              <div lang="en" className="font-phonetic font-bold text-lg text-[#6D28D9] dark:text-[#C084FC] mb-2">
                 {currentWord.phonetic}
               </div>
 
-              <div className="font-burmese font-bold text-xl text-[#0F172A] dark:text-white mb-2">
-                {currentWord.burmese}
+              <div lang="my" className="font-burmese font-bold text-xl text-[#0F172A] dark:text-white mb-2">
+                {currentWord.meaning}
               </div>
 
-              <div className="font-burmese text-xs text-[#64748B] dark:text-[#94A3B8] max-w-sm mx-auto">
-                အသံထွက်: <span className="text-[#0F172A] dark:text-white font-semibold">{currentWord.burmesePhonetic}</span>
-                {currentWord.notes && (
-                  <span className="block mt-1 text-[#6D28D9] dark:text-[#C084FC]">
-                    💡 {currentWord.notes}
-                  </span>
+              <div lang="my" className="font-burmese text-xs text-[#64748B] dark:text-[#94A3B8] max-w-sm mx-auto">
+                အသံထွက်: <span className="text-[#0F172A] dark:text-white font-semibold">{currentWord.myanmarReading}</span>
+              </div>
+            </div>
+
+            {/* Example sentence drawer on the card back (if available) */}
+            {currentWord.exampleThai && (
+              <div className="bg-[#FAF5FF] dark:bg-[#1E1B4B]/40 rounded-2xl p-3 border border-purple-100 dark:border-purple-900/40 text-left">
+                <div lang="my" className="text-[11px] font-semibold text-[#6D28D9] dark:text-[#C084FC] uppercase tracking-wider mb-1 font-burmese">
+                  ဥပမာ ဝါကျ (Example)
+                </div>
+                <div lang="th" className="font-thai text-sm text-[#0F172A] dark:text-white font-medium">
+                  {currentWord.exampleThai}
+                </div>
+                {currentWord.exampleMyanmar && (
+                  <div lang="my" className="font-burmese text-xs text-[#64748B] dark:text-[#94A3B8] mt-0.5">
+                    {currentWord.exampleMyanmar}
+                  </div>
                 )}
               </div>
-            </div>
-
-            {/* Example sentence drawer on the card back */}
-            <div className="bg-[#FAF5FF] dark:bg-[#1E1B4B]/40 rounded-2xl p-3 border border-purple-100 dark:border-purple-900/40 text-left">
-              <div className="text-[11px] font-semibold text-[#6D28D9] dark:text-[#C084FC] uppercase tracking-wider mb-1">
-                ဥပမာ ဝါကျ (Example)
-              </div>
-              <div className="font-thai text-sm text-[#0F172A] dark:text-white font-medium">
-                {currentWord.exampleThai}
-              </div>
-              <div className="font-burmese text-xs text-[#64748B] dark:text-[#94A3B8] mt-0.5">
-                {currentWord.exampleBurmese}
-              </div>
-            </div>
+            )}
 
             {/* Audio playback on Back */}
             <div className="flex items-center justify-between pt-3 border-t border-[#F1F5F9] dark:border-[#1E293B]">
@@ -281,10 +280,10 @@ export const FlashcardModule: React.FC<FlashcardModuleProps> = ({
                 className="p-2.5 rounded-xl bg-[#4A1272] text-[#FED01B] hover:bg-[#3B0764] transition-all cursor-pointer flex items-center gap-2 text-xs font-semibold shadow-sm"
               >
                 <Volume2 className="w-4 h-4" />
-                <span>အသံထွက် နားထောင်ပါ</span>
+                <span lang="my" className="font-burmese">အသံထွက် နားထောင်ပါ</span>
               </button>
 
-              <span className="text-xs text-[#94A3B8]">
+              <span lang="my" className="text-xs text-[#94A3B8] font-burmese">
                 Space ခလုတ်ဖြင့် လှန်နိုင်ပါသည်
               </span>
             </div>
@@ -307,7 +306,7 @@ export const FlashcardModule: React.FC<FlashcardModuleProps> = ({
           className="flex-1 py-3.5 px-6 rounded-2xl bg-[#9333EA] text-white hover:bg-[#7E22CE] font-bold text-sm tracking-wide shadow-md shadow-purple-900/20 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2 focus:ring-2 focus:ring-[#FED01B]"
         >
           <RotateCw className="w-4 h-4" />
-          <span>{isFlipped ? 'အရှေ့မျက်နှာသို့ (Show Front)' : 'အဖြေကြည့်မည် (Flip Answer)'}</span>
+          <span lang="my" className="font-burmese">{isFlipped ? 'အရှေ့မျက်နှာသို့ (Show Front)' : 'အဖြေကြည့်မည် (Flip Answer)'}</span>
         </button>
 
         <button
